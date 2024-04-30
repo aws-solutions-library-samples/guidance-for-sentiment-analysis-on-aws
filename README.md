@@ -36,7 +36,7 @@ _You are responsible for the cost of the AWS services used while running this Gu
 The following table provides a sample cost breakdown for deploying this Guidance with the default parameters in the US West (Oregon) Region.
 
 | AWS service  | Price per 10M units [USD] | Price per 10-50M units [USD] | Price over 50M units [USD] |
-| ----------- | ---------------------------| ---------------------------- | --------------------------- |
+| ----------------- | -------------------------------| --------------------------------- | ------------------------------- |
 | Amazon Comprehend | $ 0.0001  | $ 0.00005| $0.000025 |
 
 | AWS service  | Instance type | Standard Price per hour [USD] |
