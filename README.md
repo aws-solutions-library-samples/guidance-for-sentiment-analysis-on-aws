@@ -15,6 +15,10 @@
 10. [Authors](#authors)
 
 ## Overview
+Generative AI – a category of artificial intelligence algorithms that can generate new content based on existing data — has been hailed as the next frontier for various industries, from tech to financial services, e-commerce and healthcare. The driving force behind the capabilities of generative AI chatbots lies in their foundation models. These models consist of expansive neural networks meticulously trained on vast amounts of unstructured, unlabeled data spanning various formats, including text and audio. The versatility of foundation models enables their utilization across a wide range of tasks, showcasing their limitless potential. 
+
+In this Guidance, we will show how to generate Sentiment Analysis using Amazon Aurora PostgreSQL-Compatible Edition with pgvector enabled as the vector store. In this use case, we will walk you through the process of integrating Amazon Aurora PostgreSQL-Compatible Edition with the Comprehend Sentiment Analysis API and making sentiment analysis inferences via SQL commands. Amazon Comprehend is a natural language processing (NLP) service that uses machine learning to find insights and relationships in text.
+
 [Amazon Comprehend](https://aws.amazon.com/comprehend/) is a natural language processing (NLP) service that uses machine learning to find insights and relationships in text. No prior machine learning experience is required. This example will walk you through the process of integrating Amazon Aurora PostgreSQL-Compatible Edition with the Comprehend Sentiment Analysis API and making sentiment analysis inferences via SQL commands. For our example, we have used a sample dataset with data for Fictitious Hotel Reviews.
 
 Note: This demo involves creating an IAM Role and an associated IAM Policy to allow Amazon Aurora to interface with Amazon Comprehend. For steps on how to do this, please read through the blog post: [Leverage pgvector and Amazon Aurora PostgreSQL for Natural Language Processing, Chatbots and Sentiment Analysis](https://aws.amazon.com/blogs/database/leverage-pgvector-and-amazon-aurora-postgresql-for-natural-language-processing-chatbots-and-sentiment-analysis/).
@@ -31,10 +35,13 @@ _You are responsible for the cost of the AWS services used while running this Gu
 
 The following table provides a sample cost breakdown for deploying this Guidance with the default parameters in the US West (Oregon) Region.
 
-| AWS service  | Price per 1000 input tokens [USD] | Price per 1000 input tokens [USD] |
+| AWS service  | Price per 10M units [USD] | Price per 10-50M units [USD] | Price over 50M units [USD] 
 | ----------- | ------------ | ------------ |
-| Amazon Bedrock - Titan Text Embeddings model | $ 0.0001  | n/a |
-| Amazon Bedrock - Claude 3 Sonnet | $ 0.00300 | $ 0.01500 |
+| Amazon Comprehend | $ 0.0001  | $ 0.00005| $0.000025 |
+
+| AWS service  | Instance type | Standard Price per hour [USD] |
+| ----------- | ------------ | ------------ |
+| Amazon Sagemaker - Notebook Instances | ml.t2.large | $ 0.111 |
 
 | AWS service  | Instance type | Standard Price per hour [USD] |
 | ----------- | ------------ | ------------ |
@@ -278,11 +285,9 @@ You should see results as shown in the screenshot below. Observe the columns sen
 
 ## Next Steps
 
-In this Guidance we are using Amazon Titan text embedding model to generate embeddings. You can also try with other LLM models that are supported on Amazon Bedrock. Refer to these additional blog posts for more details.
+In this Guidance ,we have used a sample dataset for fictitious hotel reviews. We use Hugging Face’s sentence-transformers/all-mpnet-base-v2 model for generating document embeddings and store vector embeddings in our Aurora PostgreSQL DB cluster with pgvector. Refer to these additional blog posts for more details.
 
 [Leverage pgvector and Amazon Aurora PostgreSQL for Natural Language Processing, Chatbots and Sentiment Analysis](https://aws.amazon.com/blogs/database/leverage-pgvector-and-amazon-aurora-postgresql-for-natural-language-processing-chatbots-and-sentiment-analysis/)
-
-[Build generative AI applications with Amazon Aurora and Knowledge Bases for Amazon Bedrock](https://aws.amazon.com/blogs/database/build-generative-ai-applications-with-amazon-aurora-and-knowledge-bases-for-amazon-bedrock/)
 
 ## Cleanup
 
