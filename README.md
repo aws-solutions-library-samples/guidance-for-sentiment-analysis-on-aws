@@ -19,7 +19,7 @@ Generative AI – a category of artificial intelligence algorithms that can gene
 
 In this Guidance, we will show how to generate Sentiment Analysis using Amazon Aurora PostgreSQL-Compatible Edition with pgvector enabled as the vector store. In this use case, we will walk you through the process of integrating Amazon Aurora PostgreSQL-Compatible Edition with the Comprehend Sentiment Analysis API and making sentiment analysis inferences via SQL commands. Amazon Comprehend is a natural language processing (NLP) service that uses machine learning to find insights and relationships in text.
 
-[Amazon Comprehend](https://aws.amazon.com/comprehend/) is a natural language processing (NLP) service that uses machine learning to find insights and relationships in text. No prior machine learning experience is required. This example will walk you through the process of integrating Amazon Aurora PostgreSQL-Compatible Edition with the Comprehend Sentiment Analysis API and making sentiment analysis inferences via SQL commands. For our example, we have used a sample dataset with data for Fictitious Hotel Reviews.
+[Amazon Comprehend](https://aws.amazon.com/comprehend/) is a natural language processing (NLP) service that uses machine learning to find insights and relationships in text. No prior machine learning experience is required. This example will walk you through the process of integrating Amazon Aurora PostgreSQL-Compatible Edition with the Comprehend Sentiment Analysis API and making sentiment analysis inferences via SQL commands. For our example, we have used a sample dataset with data for Fictitious Hotel Reviews. We use [Hugging Face’s sentence-transformers/all-mpnet-base-v2](https://huggingface.co/sentence-transformers/all-mpnet-base-v2) model for generating document embeddings and store vector embeddings in our Aurora PostgreSQL DB cluster with pgvector.
 
 Note: This demo involves creating an IAM Role and an associated IAM Policy to allow Amazon Aurora to interface with Amazon Comprehend. For steps on how to do this, please read through the blog post: [Leverage pgvector and Amazon Aurora PostgreSQL for Natural Language Processing, Chatbots and Sentiment Analysis](https://aws.amazon.com/blogs/database/leverage-pgvector-and-amazon-aurora-postgresql-for-natural-language-processing-chatbots-and-sentiment-analysis/).
 
@@ -49,17 +49,28 @@ The following table provides a sample cost breakdown for deploying this Guidance
 
 ## Prerequisites
 
-1. Clone the repository to your local machine.
+1. Clone the GitHub repository to your local machine:
 
-2. Create a new [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) to install Python with the required dependencies and launch it. In this guidance we use Python v3.9
+```
+    git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
+
+    ```
+
+2. Navigate to source/02_SimilaritySearchSentimentAnalysis folder in terminal of your choice:
+
+```
+cd ~/source/02_SimilaritySearchSentimentAnalysis
+```
+
+3. Create a new [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) to install Python with the required dependencies and launch it. In this guidance we use Python v3.9
 
 ```
 python3.9 -m venv env
 source env/bin/activate
 ```
-3. An Aurora PostgreSQL-Compatible Edition DB cluster with pgvector support.
+4. An [Aurora PostgreSQL-Compatible Edition DB cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_GettingStartedAurora.CreatingConnecting.AuroraPostgreSQL.html) with [pgvector](https://aws.amazon.com/about-aws/whats-new/2023/07/amazon-aurora-postgresql-pgvector-vector-storage-similarity-search/)  support.
    
-4. Create a `.env` file in your project directory similar to `env.example` to add your HuggingFace access tokens and Aurora PostgreSQL DB details. If you don't have one, create a new access token - [HuggingFace](https://huggingface.co/settings/tokens). Your .env file should like the following:
+5. Create a `.env` file in your project directory similar to `env.example` to add your HuggingFace access tokens and Aurora PostgreSQL DB details. If you don't have one, create a new access token - [HuggingFace](https://huggingface.co/settings/tokens). Your .env file should like the following:
 
 ```
 HUGGINGFACEHUB_API_TOKEN=<<access_token>>
@@ -72,15 +83,17 @@ PGVECTOR_PORT=5432
 PGVECTOR_DATABASE='<dbname>'
 ```
 
-4. Install the required dependencies by running the following command:
+6. Install the required dependencies by running the following command:
 
 ```
 pip install -r requirements.txt
 ```
 
-5. Make sure you have Jupyter notebook installed. For this demo, we have used the [Jupyter notebook](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension in VS code (highly recommended for local testing).
+7. Navigate to the [SageMaker console](https://console.aws.amazon.com/sagemaker) and create a [notebook instance](https://docs.aws.amazon.com/sagemaker/latest/dg/ex1-prepare.html) by adding the default respository "https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git". Once notebook instance is InService and click on Open Jupyter.
 
-6. AWS CLI installed and configured for use. For instructions, see [Set up the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html).
+Note: You can also use the [Jupyter notebook](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension in VS code (highly recommended for local testing).
+
+8. AWS CLI installed and configured for use. For instructions, see [Set up the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html).
 
 ### Operating System
 In this sample code deployment we are using Linux operating system for Cloud9 EC2 instance and Amazon Aurora Postgresql instance.
@@ -123,7 +136,21 @@ You should see an output similar to the following:
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/sentimentanalysis_roleoutput.png)
 
-3. Connect to [psql](https://www.postgresql.org/docs/current/app-psql.html) or your favorite PostgreSQL client and install the extensions
+3. Connect to [psql](https://www.postgresql.org/docs/current/app-psql.html) or your favorite PostgreSQL client and install the extensions.
+
+In this demo , we are using AWS Cloud9 IDE to install the psql client and ML extension
+
+```
+# Install JQuery for parsing output
+sudo yum install -y jq
+
+# Install PostgreSQL 14 client and related utilities
+sudo amazon-linux-extras install -y postgresql14
+sudo yum install -y postgresql-contrib sysbench
+```
+
+Connect to deployed Aurora PostgreSQL cluster and create the below extension using psql.
+
 ```
 CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -134,7 +161,13 @@ CREATE EXTENSION IF NOT EXISTS vector;
 Ensure each of the steps in the deployment section completed successfully.
 
 ## Running the Guidance
-### Run through each cell in the given notebook pgvector_with_langchain_auroraml.ipynb
+
+This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
+
+Steps:
+
+1. Open the notebook  "~/source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb" and follow the below steps.
+
 1. Import libraries
 
 Begin by importing the necessary libraries:
@@ -274,6 +307,8 @@ Similarly, you can test results with other distance strategies such as Euclidean
 6. Run Comprehend inferences from Aurora
 
 Aurora has a built-in Comprehend function which can call the Comprehend service. It passes the inputs of the aws_comprehend.detect_sentiment function, in this case the values of the document column in the langchain_pg_embedding table, to the Comprehend service and retrieves sentiment analysis results (note that the document column is trimmed due to the long free form nature of reviews):
+
+Login in to [AWS Cloud9 IDE](https://console.aws.amazon.com/cloud9/home) and the run the below SQL query using psql.
 
 ```
 select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s;
