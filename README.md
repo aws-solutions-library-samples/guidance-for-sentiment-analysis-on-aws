@@ -50,24 +50,23 @@ The following table provides a sample cost breakdown for deploying this Guidance
 ## Prerequisites
 
 1. Clone the GitHub repository to your local machine:
-
-```
+    ```
     git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
-
     ```
 
 2. Navigate to source/02_SimilaritySearchSentimentAnalysis folder in terminal of your choice:
 
-```
-cd ~/source/02_SimilaritySearchSentimentAnalysis
-```
+    ```
+    cd /source/02_SimilaritySearchSentimentAnalysis
+    ```
 
 3. Create a new [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) to install Python with the required dependencies and launch it. In this guidance we use Python v3.9
 
-```
-python3.9 -m venv env
-source env/bin/activate
-```
+    ```
+    python3.9 -m venv env
+    source env/bin/activate
+    ```
+    
 4. An [Aurora PostgreSQL-Compatible Edition DB cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_GettingStartedAurora.CreatingConnecting.AuroraPostgreSQL.html) with [pgvector](https://aws.amazon.com/about-aws/whats-new/2023/07/amazon-aurora-postgresql-pgvector-vector-storage-similarity-search/)  support.
    
 5. Create a `.env` file in your project directory similar to `env.example` to add your HuggingFace access tokens and Aurora PostgreSQL DB details. If you don't have one, create a new access token - [HuggingFace](https://huggingface.co/settings/tokens). Your .env file should like the following:
