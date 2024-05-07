@@ -66,7 +66,7 @@ The following table provides a sample cost breakdown for deploying this Guidance
     python3.9 -m venv env
     source env/bin/activate
     ```
-    
+
 4. An [Aurora PostgreSQL-Compatible Edition DB cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_GettingStartedAurora.CreatingConnecting.AuroraPostgreSQL.html) with [pgvector](https://aws.amazon.com/about-aws/whats-new/2023/07/amazon-aurora-postgresql-pgvector-vector-storage-similarity-search/)  support.
    
 5. Create a `.env` file in your project directory similar to `env.example` to add your HuggingFace access tokens and Aurora PostgreSQL DB details. If you don't have one, create a new access token - [HuggingFace](https://huggingface.co/settings/tokens). Your .env file should like the following:
@@ -165,9 +165,9 @@ This guide will walk through each step to understand and run the code in the Jup
 
 Steps:
 
-1. Open the notebook  "~/source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb" and follow the below steps.
+1. Open the notebook "source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb" from the Sagemaker Console notebook instance and follow the below steps.
 
-1. Import libraries
+2.  Import libraries
 
 Begin by importing the necessary libraries:
 ```
@@ -179,7 +179,7 @@ from langchain.vectorstores.pgvector import PGVector, DistanceStrategy
 from langchain.docstore.document import Document
 import os
 ```
-2. Use LangChain’s [CSVLoader](https://python.langchain.com/docs/modules/data_connection/document_loaders/integrations/csv) library to load CSV and generate embeddings using Hugging Face sentence transformers:
+3. Use LangChain’s [CSVLoader](https://python.langchain.com/docs/modules/data_connection/document_loaders/integrations/csv) library to load CSV and generate embeddings using Hugging Face sentence transformers:
 ```
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 
@@ -207,7 +207,7 @@ load INSTRUCTOR_Transformer
 max_seq_length  512
 ```
 
-3. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
+4. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
 ```
 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
 docs = text_splitter.split_documents(documents)
@@ -234,7 +234,7 @@ comments: horrible customer service hotel stay february 3rd 4th 2007my friend pi
 .
 ```
 
-4. Create a table in Aurora PostgreSQL with the name of the collection. Make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table:
+5. Create a table in Aurora PostgreSQL with the name of the collection. Make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table:
    
 ```
     collection_name = 'fictitious_hotel_reviews'
@@ -280,7 +280,7 @@ comments: good choice hotel recommended sister, great location room nice, comfor
 {'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
 ```
 
-5. Use the Cosine function to refine the results to the best possible match
+6. Use the Cosine function to refine the results to the best possible match
 
 ```
     store = PGVector(
@@ -303,7 +303,7 @@ Document(page_content='comments: nice hotel expensive parking got good deal stay
 
 Similarly, you can test results with other distance strategies such as Euclidean or Max Inner Product. Euclidean distance depends on a vector’s magnitude whereas cosine similarity depends on the angle between the vectors. The angle measure is more resilient to variations of occurrence counts between terms that are semantically similar, whereas the magnitude of vectors is influenced by occurrence counts and heterogeneity of word neighborhood. Hence for similarity searches or semantic similarity in text, the cosine distance gives a more accurate measure.
 
-6. Run Comprehend inferences from Aurora
+7. Run Comprehend inferences from Aurora
 
 Aurora has a built-in Comprehend function which can call the Comprehend service. It passes the inputs of the aws_comprehend.detect_sentiment function, in this case the values of the document column in the langchain_pg_embedding table, to the Comprehend service and retrieves sentiment analysis results (note that the document column is trimmed due to the long free form nature of reviews):
 
