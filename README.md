@@ -50,7 +50,7 @@ The following table provides a sample cost breakdown for deploying this Guidance
 
 ## Prerequisites
 
-1. Clone the GitHub repository to your local machine or AWS CLoud9 IDE:
+1. Clone the GitHub repository to your local machine or AWS Cloud9 IDE:
     ```
     git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
     ```
