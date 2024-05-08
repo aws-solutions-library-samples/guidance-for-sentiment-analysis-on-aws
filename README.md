@@ -71,26 +71,27 @@ The following table provides a sample cost breakdown for deploying this Guidance
    
 5. Create a `.env` file in your project directory similar to `env.example` to add your HuggingFace access tokens and Aurora PostgreSQL DB details. If you don't have one, create a new access token - [HuggingFace](https://huggingface.co/settings/tokens). Your .env file should like the following:
 
-```
-HUGGINGFACEHUB_API_TOKEN=<<access_token>>
-
-PGVECTOR_DRIVER='psycopg2'
-PGVECTOR_USER='<username>'
-PGVECTOR_PASSWORD='<password>'
-PGVECTOR_HOST='<Aurora DB Cluster host>'
-PGVECTOR_PORT=5432
-PGVECTOR_DATABASE='<dbname>'
-```
+    ```
+    HUGGINGFACEHUB_API_TOKEN=<<access_token>>
+    
+    PGVECTOR_DRIVER='psycopg2'
+    PGVECTOR_USER='<username>'
+    PGVECTOR_PASSWORD='<password>'
+    PGVECTOR_HOST='<Aurora DB Cluster host>'
+    PGVECTOR_PORT=5432
+    PGVECTOR_DATABASE='<dbname>'
+    ```
 
 6. Install the required dependencies by running the following command:
 
-```
-pip install -r requirements.txt
-```
+    ```
+    pip install -r requirements.txt
+    ```
 
-7. Navigate to the [SageMaker console](https://console.aws.amazon.com/sagemaker) and create a [notebook instance](https://docs.aws.amazon.com/sagemaker/latest/dg/ex1-prepare.html) by adding the default respository "https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git". Once notebook instance is InService and click on Open Jupyter.
+7. Navigate to the [SageMaker console](https://console.aws.amazon.com/sagemaker) and create a [notebook instance](https://docs.aws.amazon.com/sagemaker/latest/dg/ex1-prepare.html) by adding the default respository `https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git`. Once notebook instance is InService and click on Open Jupyter.
 
-Note: You can also use the [Jupyter notebook](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension in VS code (highly recommended for local testing).
+> [!Note]
+> You can also use the [Jupyter notebook](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension in VS code (highly recommended for local testing).
 
 8. AWS CLI installed and configured for use. For instructions, see [Set up the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html).
 
@@ -148,7 +149,7 @@ sudo amazon-linux-extras install -y postgresql14
 sudo yum install -y postgresql-contrib sysbench
 ```
 
-Connect to deployed Aurora PostgreSQL cluster and create the below extension using psql.
+4. [Connect to deployed Aurora PostgreSQL cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/babelfish-connect-PostgreSQL.html) and create the below extension using psql.
 
 ```
 CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;
@@ -163,9 +164,9 @@ Ensure each of the steps in the deployment section completed successfully.
 
 This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
 
-Please follow these steps:
+**Steps:**
 
-1. Open the notebook "source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb" from the Sagemaker Console - notebook instance and follow the below steps.
+1. Open the notebook `/source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb` from the Sagemaker Console - notebook instance and follow the below steps.
 
 2.  Import libraries
 
