@@ -57,7 +57,7 @@ The following table provides a sample cost breakdown for deploying this Guidance
 2. Navigate to source/02_SimilaritySearchSentimentAnalysis folder in terminal of your choice:
 
     ```
-    cd /source/02_SimilaritySearchSentimentAnalysis
+    cd guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis/
     ```
 
 3. Create a new [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) to install Python with the required dependencies and launch it. In this guidance we use Python v3.9
@@ -163,9 +163,9 @@ Ensure each of the steps in the deployment section completed successfully.
 
 This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
 
-Steps:
+Please follow these steps:
 
-1. Open the notebook "source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb" from the Sagemaker Console notebook instance and follow the below steps.
+1. Open the notebook "source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb" from the Sagemaker Console - notebook instance and follow the below steps.
 
 2.  Import libraries
 
