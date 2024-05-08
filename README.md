@@ -148,6 +148,9 @@ sudo yum install -y jq
 # Install PostgreSQL 14 client and related utilities
 sudo amazon-linux-extras install -y postgresql14
 sudo yum install -y postgresql-contrib sysbench
+
+<or>
+sudo yum install -y postgresql*
 ```
 
 4. [Connect to deployed Aurora PostgreSQL cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/babelfish-connect-PostgreSQL.html) and create the below extension using psql.
