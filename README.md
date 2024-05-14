@@ -120,17 +120,17 @@ aws iam put-role-policy --role-name auroralab-comprehend-access --policy-name in
 
 Associate the role with the DB cluster by using following command:
 ```
-aws rds add-role-to-db-cluster --db-cluster-identifier $(echo $DBENDP | cut -d'.' -f1) \
+aws rds add-role-to-db-cluster --db-cluster-identifier <<aurora-db-cluster-identifier>> \
 --role-arn $(aws iam list-roles --query 'Roles[?RoleName==`auroralab-comprehend-access`].Arn' --output text) --feature-name Comprehend
 ```
 Run the following command and wait until the output shows as available, before moving on to the next step:
 ```
-aws rds describe-db-clusters --db-cluster-identifier $(echo $DBENDP | cut -d'.' -f1) \
+aws rds describe-db-clusters --db-cluster-identifier <<aurora-db-cluster-identifier>> \
 --query 'DBClusters[*].[Status]' --output text
 ```
 Validate that the IAM role is active by running the following command:
 ```
-aws rds describe-db-clusters --db-cluster-identifier $(echo $DBENDP | cut -d'.' -f1) \
+aws rds describe-db-clusters --db-cluster-identifier <<aurora-db-cluster-identifier>> \
 --query 'DBClusters[*].[AssociatedRoles]' --output table
 ```
 You should see an output similar to the following:
