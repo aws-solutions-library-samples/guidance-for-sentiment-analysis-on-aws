@@ -100,79 +100,89 @@ The following table provides a sample cost breakdown for deploying this Guidance
 In this sample code deployment we are using Linux operating system for Cloud9 EC2 instance and Amazon Aurora Postgresql instance.
 
 ## Deployment Steps
-### Use Amazon Comprehend with Amazon Aurora
 
-Please follow these steps:
+#### 1. Clone the GitHub repository to your local machine or AWS Cloud9 IDE:
 
-1. Create an IAM role to allow Aurora to interface with Comprehend
-   
-```
-aws iam create-role --role-name auroralab-comprehend-access \
---assume-role-policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"rds.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
-```
-Run the following commands to create and attach an inline policy to the IAM role we just created:
+    ```
+    git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
+    cd ./guidance-for-sentiment-analysis-on-aws
+    ```
+#### 2. Deploy the AWS CloudFormation Stack
+This guidance utilizes the `AdministratorAccess` role for deployment. For use in a production environment, refer to the [security best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html) in the AWS Identity and Access Management (IAM) documentation and modify the IAM roles, Amazon Aurora, and other services used as needed.
 
-```
-aws iam put-role-policy --role-name auroralab-comprehend-access --policy-name inline-policy \
---policy-document "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"comprehend:DetectSentiment\",\"comprehend:BatchDetectSentiment\"],\"Resource\":\"*\"}]}"
-```
-2. Associate the IAM role with the Aurora DB cluster
+* Using the AWS Management Console
 
-Associate the role with the DB cluster by using following command:
-```
-aws rds add-role-to-db-cluster --db-cluster-identifier <<aurora-db-cluster-identifier>> \
---role-arn $(aws iam list-roles --query 'Roles[?RoleName==`auroralab-comprehend-access`].Arn' --output text) --feature-name Comprehend
-```
-Run the following command and wait until the output shows as available, before moving on to the next step:
-```
-aws rds describe-db-clusters --db-cluster-identifier <<aurora-db-cluster-identifier>> \
---query 'DBClusters[*].[Status]' --output text
-```
-Validate that the IAM role is active by running the following command:
-```
-aws rds describe-db-clusters --db-cluster-identifier <<aurora-db-cluster-identifier>> \
---query 'DBClusters[*].[AssociatedRoles]' --output table
-```
-You should see an output similar to the following:
+    * Sign in to the AWS CloudFormation console
+    * Create Stack > Upload the `./source/templates/prereq-sentiment-analysis.yaml` file
+    * Deploy the stack after entering `Sentiment-Analysis` in the stack name
+        * The parameters can be changed, but we recommend the default values for a smooth deployment.
+     
+## Deployment Validation
 
-![](source/02_SimilaritySearchSentimentAnalysis/static/sentimentanalysis_roleoutput.png)
+Open the AWS CloudFormation console and verify the status of the template with the name starting with `Sentiment-Analysis`.
 
-3. Connect to [psql](https://www.postgresql.org/docs/current/app-psql.html) or your favorite PostgreSQL client and install the extensions.
+Deploying this stack automatically configures the following environments:
 
-In this demo , we are using AWS Cloud9 IDE to install the psql client and ML extension
+- **VPC, Subnet, Internet Gateway, Security Groups, Route Table:** A VPC with public and private subnets, an internet gateway for public access, and Secrutiy Groups & Route Table for access control.
+- **Amazon Aurora PostgreSQL cluster:** An Amazon Aurora PostgreSQL cluster consisting of a provisioned writer instance, a provisioned reader instance
+- **Amazon SageMaker Notebook Instance:** An Amazon SageMaker notebook instance is a machine learning (ML) compute instance running the Jupyter Notebook App.
+- **AWS Cloud9 IDE** AWS Cloud9 is a cloud-based integrated development environment (IDE) that lets you write, run, and debug your code with just a browser.
+- **AWS Secrets Manager , AWS Key Management Service:** AWS Secrets Manager helps you manage, retrieve database credentials and AWS Key Management Service to encrypt the database cluster.
+- **AWS Identity and Access Management - IAM Roles** IAM Roles defined with a set of permissions, allowing them to perform actions on AWS resources deployed in this guidance.
+- **You can see the detailed output in the AWS CloudFormation `Sentiment-Analysis` stack Resources.**
 
-```
+    ```
+    aws cloudformation describe-stacks --stack-name Sentiment-Analysis --query 'Stacks[0].Outputs' --output table --no-cli-pager
+    ```
+
+## Running the Guidance
+#### Setup the environment
+
+1. Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New -> Terminal**
+2. Use the code block below to setup the environment (use the Copy button on the right to copy code)
+
+```bash
 # Install JQuery for parsing output
 sudo yum install -y jq
 
+# Setup your environment variables to connect to Aurora PostgreSQL
+AWSREGION=`aws configure get region`
+
+PGHOST=`aws rds describe-db-cluster-endpoints \
+    --db-cluster-identifier apgpg-pgvector \
+    --region $AWSREGION \
+    --query 'DBClusterEndpoints[0].Endpoint' \
+    --output text`
+
+# Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
+CREDS=`aws secretsmanager get-secret-value \
+    --secret-id apgpg-pgvector-secret-$AWSREGION \
+    --region $AWSREGION | jq -r '.SecretString'`
+
+export PGUSER="`echo $CREDS | jq -r '.username'`"
+export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
+export PGHOST
+
 # Install PostgreSQL 14 client and related utilities
 sudo amazon-linux-extras install -y postgresql14
-sudo yum install -y postgresql-contrib sysbench
 
-<or>
-sudo yum install -y postgresql*
+# Create pgvector extension
+psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
+psql -c "CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;"
 ```
+3. This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
 
-4. [Connect to deployed Aurora PostgreSQL cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/babelfish-connect-PostgreSQL.html) and create the below extension using psql.
+In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents that contain live code, equations, visualizations, and narrative text.
 
-```
-CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;
-CREATE EXTENSION IF NOT EXISTS vector;
-```
+1. Navigate to the SageMaker console and search for Jupyter notebook instance  and select Open Jupyter.
 
-## Deployment Validation
+2. Click to the 02_SimilaritySearchSentimentAnalysis directory.
 
-Ensure each of the steps in the deployment section completed successfully.
+3. 
+   
+4. Open the notebook `/source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb` from the Sagemaker Console - notebook instance and follow the below steps.
 
-## Running the Guidance
-
-This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
-
-**Steps:**
-
-1. Open the notebook `/source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb` from the Sagemaker Console - notebook instance and follow the below steps.
-
-2.  Import libraries
+5.  Import libraries
 
 Begin by importing the necessary libraries:
 ```
