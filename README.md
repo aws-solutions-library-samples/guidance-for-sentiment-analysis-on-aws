@@ -131,7 +131,8 @@ Deploying this stack automatically configures the following environments:
 
 - This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
 
-- In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents      that contain live code, equations, visualizations, and narrative text.
+> [!Note]
+> In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents      that contain live code, equations, visualizations, and narrative text.
 
 1. Navigate to the SageMaker console and search for [Jupyter notebook instance](https://console.aws.amazon.com/sagemaker/home#notebook-instances)  and select Open Jupyter.
 
