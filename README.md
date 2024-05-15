@@ -136,7 +136,7 @@ Deploying this stack automatically configures the following environments:
     ```
 
 ## Running the Guidance
-#### Setup the environment
+#### Setup the environment in AWS Cloud9 to connect to Aurora PostgreSQL DB Cluster
 
 1. Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New -> Terminal**
 2. Use the code block below to setup the environment (use the Copy button on the right to copy code)
@@ -178,13 +178,78 @@ In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami
 
 2. Click to the 02_SimilaritySearchSentimentAnalysis directory.
 
-3. 
+3. Open a new Terminal in Jupyter to set environment variables that you will used for the labs as shown in the screenshot below. Click on New -> Terminal.
    
-4. Open the notebook `/source/02_SimilaritySearchSentimentAnalysis/pgvector_with_langchain_auroraml.ipynb` from the Sagemaker Console - notebook instance and follow the below steps.
+4. If you don't have one, create a new access token on HuggingFace's website - [HuggingFace] (https://huggingface.co/settings/tokens) . Enter it when prompted by the code block below.
 
-5.  Import libraries
+   ``` 
+   read -p "Enter your HuggingFace token: " TOKEN
+   ```
 
-Begin by importing the necessary libraries:
+5. Use the code block below to create an .env file for your project in the same terminal.(use the Copy button on the right to copy code)
+
+```
+# Install JQuery for parsing output
+sudo yum install -y jq
+
+# Setup your environment variables to connect to Aurora PostgreSQL
+AWSREGION=`aws configure get region`
+
+PGHOST=`aws rds describe-db-cluster-endpoints \
+    --db-cluster-identifier apgpg-pgvector \
+    --region $AWSREGION \
+    --query 'DBClusterEndpoints[0].Endpoint' \
+    --output text`
+
+# Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
+CREDS=`aws secretsmanager get-secret-value \
+    --secret-id apgpg-pgvector-secret-$AWSREGION \
+    --region $AWSREGION | jq -r '.SecretString'`
+
+export PGUSER="`echo $CREDS | jq -r '.username'`"
+export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
+export PGHOST
+
+cd ~/SageMaker/guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis
+
+cat > .env << EOF
+HUGGINGFACEHUB_API_TOKEN='$TOKEN'
+PGVECTOR_DRIVER='psycopg2'
+PGVECTOR_USER='$PGUSER'
+PGVECTOR_PASSWORD='$PGPASSWORD'
+PGVECTOR_HOST='$PGHOST'
+PGVECTOR_PORT=5432
+PGVECTOR_DATABASE='postgres'
+EOF
+
+cat .env
+```
+
+Your .env file should like the following:
+
+```
+HUGGINGFACEHUB_API_TOKEN=<access_token>
+PGVECTOR_DRIVER='psycopg2'
+PGVECTOR_USER=<username>
+PGVECTOR_PASSWORD=<password>
+PGVECTOR_HOST=<Aurora DB endpoint>
+PGVECTOR_PORT=5432
+PGVECTOR_DATABASE=<dbname>
+```
+
+Once the environment variables are set , you can exit the terminal
+   
+6. Open the notebook `pgvector_with_langchain_auroraml.ipynb.`
+
+7. In the Menu Bar, select Kernel -> Change kernel and select conda_tensorflow2_p310.
+
+8. Clear the current output in all the cells using the menu and selecting: Cell -> All Output -> Clear.
+
+9. In this lab, we have created a requirements.txt file in the apgpgvector-langchain-auroraml folder that contains all the libraries and packages you will need to complete this lab. Begin by installing the necessary libraries. (~5 mins)
+
+10. pgvector integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
+
+
 ```
 from dotenv import load_dotenv
 from langchain.document_loaders import CSVLoader
@@ -193,10 +258,8 @@ from langchain.embeddings import HuggingFaceInstructEmbeddings
 from langchain.vectorstores.pgvector import PGVector, DistanceStrategy
 from langchain.docstore.document import Document
 import os
-```
-3. Use LangChain’s [CSVLoader](https://python.langchain.com/docs/modules/data_connection/document_loaders/integrations/csv) library to load CSV and generate embeddings using Hugging Face sentence transformers:
-```
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
+
+load_dotenv()
 
 embeddings = HuggingFaceInstructEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
@@ -208,11 +271,7 @@ connection_string = PGVector.connection_string_from_db_params(
     port = os.environ.get("PGVECTOR_PORT"),                                          
     database = os.environ.get("PGVECTOR_DATABASE")                                       
 )
-
-loader = CSVLoader('./data/test.csv', source_column="comments")
-documents = loader.load()
 ```
-
 If the run is successful, you should see an output as follows:
 ```
 /../pgvector-with-langchain-auroraml/venv/lib/python3.9/site-packages/InstructorEmbedding/instructor.py:7: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
@@ -222,7 +281,14 @@ load INSTRUCTOR_Transformer
 max_seq_length  512
 ```
 
-4. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
+11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
+
+```
+loader = CSVLoader('./data/test.csv', source_column="comments")
+documents = loader.load()
+```
+
+12. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
 ```
 text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
 docs = text_splitter.split_documents(documents)
@@ -249,24 +315,28 @@ comments: horrible customer service hotel stay february 3rd 4th 2007my friend pi
 .
 ```
 
-5. Create a table in Aurora PostgreSQL with the name of the collection. Make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table:
+13. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
    
 ```
-    collection_name = 'fictitious_hotel_reviews'
+from typing import List, Tuple
 
-    db = PGVector.from_documents(
-        embedding=embeddings,
-        documents=docs,
-        collection_name=collection_name,
-        connection_string=connection_string
-    )
+collection_name = "fictitious_hotel_reviews"
+
+db = PGVector.from_documents(
+     embedding=embeddings,
+     documents=docs,
+     collection_name=collection_name,
+     connection_string=connection_string
+)
 ```
 
-Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
+14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
 
 ```
 query = "What do some of the positive reviews say?"
 docs_with_score: List[Tuple[Document, float]] = db.similarity_search_with_score(query)
+```
+```
 for doc, score in docs_with_score:
     print("-" * 80)
     print("Score: ", score)
@@ -295,7 +365,7 @@ comments: good choice hotel recommended sister, great location room nice, comfor
 {'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
 ```
 
-6. Use the Cosine function to refine the results to the best possible match
+15. Use the Cosine function to refine the results to the best possible match
 
 ```
     store = PGVector(
@@ -318,7 +388,7 @@ Document(page_content='comments: nice hotel expensive parking got good deal stay
 
 Similarly, you can test results with other distance strategies such as Euclidean or Max Inner Product. Euclidean distance depends on a vector’s magnitude whereas cosine similarity depends on the angle between the vectors. The angle measure is more resilient to variations of occurrence counts between terms that are semantically similar, whereas the magnitude of vectors is influenced by occurrence counts and heterogeneity of word neighborhood. Hence for similarity searches or semantic similarity in text, the cosine distance gives a more accurate measure.
 
-7. Run Comprehend inferences from Aurora
+16. Run Comprehend inferences from Aurora
 
 Aurora has a built-in Comprehend function which can call the Comprehend service. It passes the inputs of the aws_comprehend.detect_sentiment function, in this case the values of the document column in the langchain_pg_embedding table, to the Comprehend service and retrieves sentiment analysis results (note that the document column is trimmed due to the long free form nature of reviews):
 
