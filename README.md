@@ -58,23 +58,23 @@ In this sample code deployment we are using Linux operating system for Cloud9 EC
 
 ## Deployment Steps
 
-#### Clone the GitHub repository:
+#### 1. Clone the GitHub repository
 
     ```
     git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
     cd ./guidance-for-sentiment-analysis-on-aws
     ```
-#### Deploy the AWS CloudFormation Stack
+#### 2. Deploy the AWS CloudFormation Stack
 This guidance utilizes the `AdministratorAccess` role for deployment. For use in a production environment, refer to the [security best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html) in the AWS Identity and Access Management (IAM) documentation and modify the IAM roles, Amazon Aurora, and other services used as needed.
 
 * Using the AWS Management Console
 
-    * Sign in to the AWS CloudFormation console
+    * Sign in to the [AWS CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
     * Create Stack > Upload the `./source/templates/prereq-sentiment-analysis.yaml` file
     * Deploy the stack after entering `Sentiment-Analysis` in the stack name
         * The parameters can be changed, but we recommend the default values for a smooth deployment.
      
-## Deployment Validation
+#### 3. Deployment Validation
 
 Open the AWS CloudFormation console and verify the status of the template with the name starting with `Sentiment-Analysis`.
 
@@ -93,9 +93,9 @@ Deploying this stack automatically configures the following environments:
     ```
 
 ## Running the Guidance
-#### Setup the environment in AWS Cloud9 to connect to Aurora PostgreSQL DB Cluster
+#### 1. Setup the environment in AWS Cloud9 to connect to Aurora PostgreSQL DB Cluster
 
-- Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New -> Terminal**
+- Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New Terminal**
 - Use the code block below to setup the environment (use the Copy button on the right to copy code)
 
     ```bash
@@ -127,7 +127,7 @@ Deploying this stack automatically configures the following environments:
     psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
     psql -c "CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;"
     ```
-#### Semantic Search using Hugging Face
+#### 2. Semantic Search using Hugging Face
 
 - This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
 
@@ -214,17 +214,18 @@ Once the environment variables are set , you can exit the terminal
 
 7. In the Menu Bar, select Kernel -> Change kernel and select conda_tensorflow2_p310.
 
+![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.png) 
+
+8. Clear the current output in all the cells using the menu and selecting: Cell -> All Output -> Clear.
+
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Clear_Cells.png) 
 
-9. Clear the current output in all the cells using the menu and selecting: Cell -> All Output -> Clear.
 
-![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.jpg) 
-
-11. In this lab, we have created a requirements.txt file in the apgpgvector-langchain-auroraml folder that contains all the libraries and packages you will need to complete this lab. Begin by installing the necessary libraries. (~5 mins)
+9. In this lab, we have created a `requirements.txt` file in the apgpgvector-langchain-auroraml folder that contains all the libraries and packages you will need to complete this lab. Begin by installing the necessary libraries. (~5 mins)
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_Install.png) 
 
-13. pgvector integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
+10. `pgvector` integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
 
     ```
     from dotenv import load_dotenv
@@ -260,14 +261,14 @@ Once the environment variables are set , you can exit the terminal
     max_seq_length  512
     ```
 
-14. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
+11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
     
     ```
     loader = CSVLoader('./data/test.csv', source_column="comments")
     documents = loader.load()
     ```
 
-15. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
+12. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
     
     ```
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
@@ -306,7 +307,7 @@ Once the environment variables are set , you can exit the terminal
     .
     ```
 
-16. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
+13. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
    
     ```
     from typing import List, Tuple
@@ -321,7 +322,7 @@ Once the environment variables are set , you can exit the terminal
     )
     ```
 
-17. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
+14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
 
     ```
     query = "What do some of the positive reviews say?"
@@ -356,7 +357,7 @@ Once the environment variables are set , you can exit the terminal
     {'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
     ```
 
-18. Use the Cosine function to refine the results to the best possible match
+15. Use the Cosine function to refine the results to the best possible match
 
     ```
         store = PGVector(
