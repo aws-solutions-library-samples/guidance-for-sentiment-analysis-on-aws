@@ -136,11 +136,20 @@ Deploying this stack automatically configures the following environments:
 
 1. Navigate to the SageMaker console and search for [Jupyter notebook instance](https://console.aws.amazon.com/sagemaker/home#notebook-instances)  and select Open Jupyter.
 
-2. Click to the `02_SimilaritySearchSentimentAnalysis` directory.
+[!Notebook](source/02_SimilaritySearchSentimentAnalysis/static/Launch_Jupyter_Notebook_Semantic.png)
+
+2. Click to the `guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis` directory.
+
+[!Folder-Structure](source/02_SimilaritySearchSentimentAnalysis/static/Folder-Structure.jpg)
 
 3. Open a new **Terminal** in Jupyter to set environment variables that you will used for the labs as shown in the screenshot below. Click on **New -> Terminal**.
+
+[!Terminal](source/02_SimilaritySearchSentimentAnalysis/static/Open-terminal.jpg)
+
    
 4. If you don't have one, create a new access token on HuggingFace's website - [HuggingFace] (https://huggingface.co/settings/tokens) . Enter it when prompted by the code block below.
+
+   [!Hugging-Face](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
 
    ``` 
    read -p "Enter your HuggingFace token: " TOKEN
@@ -200,6 +209,8 @@ Deploying this stack automatically configures the following environments:
 Once the environment variables are set , you can exit the terminal
    
 6. Open the notebook `pgvector_with_langchain_auroraml.ipynb.`
+
+[!Hugging-Face](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
 
 7. In the Menu Bar, select Kernel -> Change kernel and select conda_tensorflow2_p310.
 
