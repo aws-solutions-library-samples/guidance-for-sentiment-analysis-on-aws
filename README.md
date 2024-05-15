@@ -264,7 +264,7 @@ Once the environment variables are set , you can exit the terminal
 11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
     
     ```
-    loader = CSVLoader('./data/test.csv', source_column="comments")
+    loader = CSVLoader('./data/fictitious_hotel_reviews_trimmed_500.csv')
     documents = loader.load()
     ```
 
@@ -368,7 +368,8 @@ Once the environment variables are set , you can exit the terminal
         )
     
         retriever = store.as_retriever(search_kwargs={"k": 1})
-    
+    ```
+    ```
         retriever.get_relevant_documents(query='What do some of the positive reviews say?')
     ```
 
