@@ -49,65 +49,22 @@ The following table provides a sample cost breakdown for deploying this Guidance
 | Amazon Aurora | db.r6g.2xlarge  | $1.038 |
 
 ## Prerequisites
-
-1. Clone the GitHub repository to your local machine or AWS Cloud9 IDE:
-    ```
-    git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
-    ```
-
-2. Navigate to source/02_SimilaritySearchSentimentAnalysis folder in terminal of your choice:
-
-    ```
-    cd guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis/
-    ```
-
-3. Create a new [virtual environment](https://docs.python.org/3/library/venv.html#module-venv) to install Python with the required dependencies and launch it. In this guidance we use Python v3.9
-
-    ```
-    python3.9 -m venv env
-    source env/bin/activate
-    ```
-
-4. An [Aurora PostgreSQL-Compatible Edition DB cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_GettingStartedAurora.CreatingConnecting.AuroraPostgreSQL.html) with [pgvector](https://aws.amazon.com/about-aws/whats-new/2023/07/amazon-aurora-postgresql-pgvector-vector-storage-similarity-search/)  support.
-   
-5. Create a `.env` file in your project directory similar to `env.example` to add your HuggingFace access tokens and Aurora PostgreSQL DB details. If you don't have one, create a new access token - [HuggingFace](https://huggingface.co/settings/tokens). Your .env file should like the following:
-
-    ```
-    HUGGINGFACEHUB_API_TOKEN=<<access_token>>
-    
-    PGVECTOR_DRIVER='psycopg2'
-    PGVECTOR_USER='<username>'
-    PGVECTOR_PASSWORD='<password>'
-    PGVECTOR_HOST='<Aurora DB Cluster host>'
-    PGVECTOR_PORT=5432
-    PGVECTOR_DATABASE='<dbname>'
-    ```
-
-6. Install the required dependencies by running the following command:
-
-    ```
-    pip install -r requirements.txt
-    ```
-
-7. Navigate to the [SageMaker console](https://console.aws.amazon.com/sagemaker) and create a [notebook instance](https://docs.aws.amazon.com/sagemaker/latest/dg/ex1-prepare.html) by adding the default respository `https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git`. Once notebook instance is InService and click on Open Jupyter.
-
-> [!Note]
-> You can also use the [Jupyter notebook](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extension in VS code (highly recommended for local testing).
-
-8. AWS CLI installed and configured for use. For instructions, see [Set up the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html).
+- The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed.
+- The visual editor of your choice, for example [Visual Studio Code](https://code.visualstudio.com/).
+- Download CloudFormation template to quickly deploy and test the solution. Follow the steps that are mentioned in this [link](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-stack.html) to deploy the stack.
 
 ### Operating System
 In this sample code deployment we are using Linux operating system for Cloud9 EC2 instance and Amazon Aurora Postgresql instance.
 
 ## Deployment Steps
 
-#### 1. Clone the GitHub repository to your local machine or AWS Cloud9 IDE:
+#### Clone the GitHub repository:
 
     ```
     git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
     cd ./guidance-for-sentiment-analysis-on-aws
     ```
-#### 2. Deploy the AWS CloudFormation Stack
+#### Deploy the AWS CloudFormation Stack
 This guidance utilizes the `AdministratorAccess` role for deployment. For use in a production environment, refer to the [security best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html) in the AWS Identity and Access Management (IAM) documentation and modify the IAM roles, Amazon Aurora, and other services used as needed.
 
 * Using the AWS Management Console
@@ -138,47 +95,49 @@ Deploying this stack automatically configures the following environments:
 ## Running the Guidance
 #### Setup the environment in AWS Cloud9 to connect to Aurora PostgreSQL DB Cluster
 
-1. Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New -> Terminal**
-2. Use the code block below to setup the environment (use the Copy button on the right to copy code)
+- Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New -> Terminal**
+- Use the code block below to setup the environment (use the Copy button on the right to copy code)
 
-```bash
-# Install JQuery for parsing output
-sudo yum install -y jq
+    ```bash
+    # Install JQuery for parsing output
+    sudo yum install -y jq
+    
+    # Setup your environment variables to connect to Aurora PostgreSQL
+    AWSREGION=`aws configure get region`
+    
+    PGHOST=`aws rds describe-db-cluster-endpoints \
+        --db-cluster-identifier apgpg-pgvector \
+        --region $AWSREGION \
+        --query 'DBClusterEndpoints[0].Endpoint' \
+        --output text`
+    
+    # Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
+    CREDS=`aws secretsmanager get-secret-value \
+        --secret-id apgpg-pgvector-secret-$AWSREGION \
+        --region $AWSREGION | jq -r '.SecretString'`
+    
+    export PGUSER="`echo $CREDS | jq -r '.username'`"
+    export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
+    export PGHOST
+    
+    # Install PostgreSQL 14 client and related utilities
+    sudo amazon-linux-extras install -y postgresql14
+    
+    # Create pgvector extension
+    psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
+    psql -c "CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;"
+    ```
+#### Semantic Search using Hugging Face
 
-# Setup your environment variables to connect to Aurora PostgreSQL
-AWSREGION=`aws configure get region`
+- This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
 
-PGHOST=`aws rds describe-db-cluster-endpoints \
-    --db-cluster-identifier apgpg-pgvector \
-    --region $AWSREGION \
-    --query 'DBClusterEndpoints[0].Endpoint' \
-    --output text`
+- In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents      that contain live code, equations, visualizations, and narrative text.
 
-# Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
-CREDS=`aws secretsmanager get-secret-value \
-    --secret-id apgpg-pgvector-secret-$AWSREGION \
-    --region $AWSREGION | jq -r '.SecretString'`
+1. Navigate to the SageMaker console and search for [Jupyter notebook instance](https://console.aws.amazon.com/sagemaker/home#notebook-instances)  and select Open Jupyter.
 
-export PGUSER="`echo $CREDS | jq -r '.username'`"
-export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
-export PGHOST
+2. Click to the `02_SimilaritySearchSentimentAnalysis` directory.
 
-# Install PostgreSQL 14 client and related utilities
-sudo amazon-linux-extras install -y postgresql14
-
-# Create pgvector extension
-psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
-psql -c "CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;"
-```
-3. This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
-
-In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents that contain live code, equations, visualizations, and narrative text.
-
-1. Navigate to the SageMaker console and search for Jupyter notebook instance  and select Open Jupyter.
-
-2. Click to the 02_SimilaritySearchSentimentAnalysis directory.
-
-3. Open a new Terminal in Jupyter to set environment variables that you will used for the labs as shown in the screenshot below. Click on New -> Terminal.
+3. Open a new **Terminal** in Jupyter to set environment variables that you will used for the labs as shown in the screenshot below. Click on **New -> Terminal**.
    
 4. If you don't have one, create a new access token on HuggingFace's website - [HuggingFace] (https://huggingface.co/settings/tokens) . Enter it when prompted by the code block below.
 
@@ -188,54 +147,54 @@ In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami
 
 5. Use the code block below to create an .env file for your project in the same terminal.(use the Copy button on the right to copy code)
 
-```
-# Install JQuery for parsing output
-sudo yum install -y jq
+    ```
+    # Install JQuery for parsing output
+    sudo yum install -y jq
+    
+    # Setup your environment variables to connect to Aurora PostgreSQL
+    AWSREGION=`aws configure get region`
+    
+    PGHOST=`aws rds describe-db-cluster-endpoints \
+        --db-cluster-identifier apgpg-pgvector \
+        --region $AWSREGION \
+        --query 'DBClusterEndpoints[0].Endpoint' \
+        --output text`
+    
+    # Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
+    CREDS=`aws secretsmanager get-secret-value \
+        --secret-id apgpg-pgvector-secret-$AWSREGION \
+        --region $AWSREGION | jq -r '.SecretString'`
+    
+    export PGUSER="`echo $CREDS | jq -r '.username'`"
+    export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
+    export PGHOST
+    
+    cd ~/SageMaker/guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis
+    
+    cat > .env << EOF
+    HUGGINGFACEHUB_API_TOKEN='$TOKEN'
+    PGVECTOR_DRIVER='psycopg2'
+    PGVECTOR_USER='$PGUSER'
+    PGVECTOR_PASSWORD='$PGPASSWORD'
+    PGVECTOR_HOST='$PGHOST'
+    PGVECTOR_PORT=5432
+    PGVECTOR_DATABASE='postgres'
+    EOF
+    
+    cat .env
+    ```
 
-# Setup your environment variables to connect to Aurora PostgreSQL
-AWSREGION=`aws configure get region`
+    Your .env file should like the following:
 
-PGHOST=`aws rds describe-db-cluster-endpoints \
-    --db-cluster-identifier apgpg-pgvector \
-    --region $AWSREGION \
-    --query 'DBClusterEndpoints[0].Endpoint' \
-    --output text`
-
-# Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
-CREDS=`aws secretsmanager get-secret-value \
-    --secret-id apgpg-pgvector-secret-$AWSREGION \
-    --region $AWSREGION | jq -r '.SecretString'`
-
-export PGUSER="`echo $CREDS | jq -r '.username'`"
-export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
-export PGHOST
-
-cd ~/SageMaker/guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis
-
-cat > .env << EOF
-HUGGINGFACEHUB_API_TOKEN='$TOKEN'
-PGVECTOR_DRIVER='psycopg2'
-PGVECTOR_USER='$PGUSER'
-PGVECTOR_PASSWORD='$PGPASSWORD'
-PGVECTOR_HOST='$PGHOST'
-PGVECTOR_PORT=5432
-PGVECTOR_DATABASE='postgres'
-EOF
-
-cat .env
-```
-
-Your .env file should like the following:
-
-```
-HUGGINGFACEHUB_API_TOKEN=<access_token>
-PGVECTOR_DRIVER='psycopg2'
-PGVECTOR_USER=<username>
-PGVECTOR_PASSWORD=<password>
-PGVECTOR_HOST=<Aurora DB endpoint>
-PGVECTOR_PORT=5432
-PGVECTOR_DATABASE=<dbname>
-```
+    ```
+    HUGGINGFACEHUB_API_TOKEN=<access_token>
+    PGVECTOR_DRIVER='psycopg2'
+    PGVECTOR_USER=<username>
+    PGVECTOR_PASSWORD=<password>
+    PGVECTOR_HOST=<Aurora DB endpoint>
+    PGVECTOR_PORT=5432
+    PGVECTOR_DATABASE=<dbname>
+    ```
 
 Once the environment variables are set , you can exit the terminal
    
@@ -249,142 +208,162 @@ Once the environment variables are set , you can exit the terminal
 
 10. pgvector integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
 
-
-```
-from dotenv import load_dotenv
-from langchain.document_loaders import CSVLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceInstructEmbeddings
-from langchain.vectorstores.pgvector import PGVector, DistanceStrategy
-from langchain.docstore.document import Document
-import os
-
-load_dotenv()
-
-embeddings = HuggingFaceInstructEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
-
-connection_string = PGVector.connection_string_from_db_params(                                                  
-    driver = os.environ.get("PGVECTOR_DRIVER"),
-    user = os.environ.get("PGVECTOR_USER"),                                      
-    password = os.environ.get("PGVECTOR_PASSWORD"),                                  
-    host = os.environ.get("PGVECTOR_HOST"),                                            
-    port = os.environ.get("PGVECTOR_PORT"),                                          
-    database = os.environ.get("PGVECTOR_DATABASE")                                       
-)
-```
-If the run is successful, you should see an output as follows:
-```
-/../pgvector-with-langchain-auroraml/venv/lib/python3.9/site-packages/InstructorEmbedding/instructor.py:7: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` instead to force console mode (e.g. in jupyter console)
-  from tqdm.autonotebook import trange
-load INSTRUCTOR_Transformer
-load INSTRUCTOR_Transformer
-max_seq_length  512
-```
+    ```
+    from dotenv import load_dotenv
+    from langchain.document_loaders import CSVLoader
+    from langchain.text_splitter import CharacterTextSplitter
+    from langchain.embeddings import HuggingFaceInstructEmbeddings
+    from langchain.vectorstores.pgvector import PGVector, DistanceStrategy
+    from langchain.docstore.document import Document
+    import os
+    
+    load_dotenv()
+    
+    embeddings = HuggingFaceInstructEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
+    
+    connection_string = PGVector.connection_string_from_db_params(                                                  
+        driver = os.environ.get("PGVECTOR_DRIVER"),
+        user = os.environ.get("PGVECTOR_USER"),                                      
+        password = os.environ.get("PGVECTOR_PASSWORD"),                                  
+        host = os.environ.get("PGVECTOR_HOST"),                                            
+        port = os.environ.get("PGVECTOR_PORT"),                                          
+        database = os.environ.get("PGVECTOR_DATABASE")                                       
+    )
+    ```
+    
+    If the run is successful, you should see an output as follows:
+    
+    ```
+    /../pgvector-with-langchain-auroraml/venv/lib/python3.9/site-packages/InstructorEmbedding/instructor.py:7: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` 
+    instead to force console mode (e.g. in jupyter console)
+      from tqdm.autonotebook import trange
+    load INSTRUCTOR_Transformer
+    load INSTRUCTOR_Transformer
+    max_seq_length  512
+    ```
 
 11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
-
-```
-loader = CSVLoader('./data/test.csv', source_column="comments")
-documents = loader.load()
-```
+    
+    ```
+    loader = CSVLoader('./data/test.csv', source_column="comments")
+    documents = loader.load()
+    ```
 
 12. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
-```
-text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-docs = text_splitter.split_documents(documents)
-print(len(documents))
-print(len(docs))
+    
+    ```
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    docs = text_splitter.split_documents(documents)
+    print(len(documents))
+    print(len(docs))
+    
+    # Access the content and metadata of each document
+    for document in documents:
+        content = print(document.page_content)
+        metadata = print(document.metadata)
+    ```
 
-# Access the content and metadata of each document
-for document in documents:
-    content = print(document.page_content)
-    metadata = print(document.metadata)
-```
-
-If the run is successful, you should see an output as follows:
-```
-10
-10
-<<Summarized output>>
-comments: great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library service fabulous,
-{'source': 'great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library service fabulous,  ', 'row': 0}
-comments: horrible customer service hotel stay february 3rd 4th 2007my friend picked hotel monaco appealing website online package included champagne late checkout 3 free valet gift spa weekend, friend checked room hours earlier came later, pulled valet young man just stood, asked valet open said, pull bags didn__Ç_é_ offer help, got garment bag suitcase came car key room number says not valet, car park car street pull, left key working asked valet park car gets, went room fine bottle champagne oil lotion gift spa, dressed went came got bed noticed blood drops pillows sheets pillows, disgusted just unbelievable, called desk sent somebody 20 minutes later, swapped sheets left apologizing, sunday morning called desk speak management sheets aggravated rude, apparently no manager kind supervisor weekend wait monday morning
-{'source': 'horrible customer service hotel stay february 3rd 4th 2007my friend picked hotel monaco appealing website online package included champagne late checkout 3 free valet gift spa weekend, friend checked room hours earlier came later, pulled valet young man just stood, asked valet open said, pull bags didn__Ç_é_ offer help, got garment bag suitcase came car key room number says not valet, car park car street pull, left key working asked valet park car gets, went room fine bottle champagne oil lotion gift spa, dressed went came got bed noticed blood drops pillows sheets pillows, disgusted just unbelievable, called desk sent somebody 20 minutes later, swapped sheets left apologizing, sunday morning called desk speak management sheets aggravated rude, apparently no manager kind supervisor weekend wait monday morning', 'row': 1}
-.
-.
-.
-```
+    If the run is successful, you should see an output as follows:
+    
+    ```
+    10
+    10
+    <<Summarized output>>
+    comments: great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library     
+    service fabulous,
+    {'source': 'great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library 
+    service fabulous,  ', 'row': 0}
+    comments: horrible customer service hotel stay february 3rd 4th 2007my friend picked hotel monaco appealing website online package included champagne late checkout 3 free valet gift spa weekend, 
+    friend checked room hours earlier came later, pulled valet young man just stood, asked valet open said, pull bags didn__Ç_é_ offer help, got garment bag suitcase came car key room number says not 
+    valet, car park car street pull, left key working asked valet park car gets, went room fine bottle champagne oil lotion gift spa, dressed went came got bed noticed blood drops pillows sheets 
+    pillows, disgusted just unbelievable, called desk sent somebody 20 minutes later, swapped sheets left apologizing, sunday morning called desk speak management sheets aggravated rude, apparently no 
+    manager kind supervisor weekend wait monday morning
+    {'source': 'horrible customer service hotel stay february 3rd 4th 2007my friend picked hotel monaco appealing website online package included champagne late checkout 3 free valet gift spa weekend, 
+    friend checked room hours earlier came later, pulled valet young man just stood, asked valet open said, pull bags didn__Ç_é_ offer help, got garment bag suitcase came car key room number says not 
+    valet, car park car street pull, left key working asked valet park car gets, went room fine bottle champagne oil lotion gift spa, dressed went came got bed noticed blood drops pillows sheets 
+    pillows, disgusted just unbelievable, called desk sent somebody 20 minutes later, swapped sheets left apologizing, sunday morning called desk speak management sheets aggravated rude, apparently no 
+    manager kind supervisor weekend wait monday morning', 'row': 1}
+    .
+    .
+    .
+    ```
 
 13. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
    
-```
-from typing import List, Tuple
-
-collection_name = "fictitious_hotel_reviews"
-
-db = PGVector.from_documents(
-     embedding=embeddings,
-     documents=docs,
-     collection_name=collection_name,
-     connection_string=connection_string
-)
-```
+    ```
+    from typing import List, Tuple
+    
+    collection_name = "fictitious_hotel_reviews"
+    
+    db = PGVector.from_documents(
+         embedding=embeddings,
+         documents=docs,
+         collection_name=collection_name,
+         connection_string=connection_string
+    )
+    ```
 
 14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
 
-```
-query = "What do some of the positive reviews say?"
-docs_with_score: List[Tuple[Document, float]] = db.similarity_search_with_score(query)
-```
-```
-for doc, score in docs_with_score:
-    print("-" * 80)
-    print("Score: ", score)
-    print(doc.page_content)
-    print(doc.metadata)
-    print("-" * 80)
-```
+    ```
+    query = "What do some of the positive reviews say?"
+    docs_with_score: List[Tuple[Document, float]] = db.similarity_search_with_score(query)
+    ```
+    ```
+    for doc, score in docs_with_score:
+        print("-" * 80)
+        print("Score: ", score)
+        print(doc.page_content)
+        print(doc.metadata)
+        print("-" * 80)
+    ```
 
-If the run is successful, you should see an output as follows:
+    If the run is successful, you should see an output as follows:
 
-```
-Score:  0.9238530395691034
-comments: nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice experience having pay 40 parking night,
-{'source': 'nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice experience having pay 40 parking night,  ', 'row': 5}
-
-Score:  0.975017819981635
-comments: great location need internally upgrade advantage north end downtown seattle great restaurants nearby good prices, rooms need updated literally thought sleeping 1970 bed old pillows sheets, net result bad nights sleep, stay location, staff friendly,
-{'source': 'great location need internally upgrade advantage north end downtown seattle great restaurants nearby good prices, rooms need updated literally thought sleeping 1970 bed old pillows sheets, net result bad nights sleep, stay location, staff friendly,  ', 'row': 3}
-
-Score:  1.0084132474978011
-comments: great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library service fabulous,
-{'source': 'great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library service fabulous,  ', 'row': 0}
-
-Score:  1.0180131593936907
-comments: good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay
-{'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
-```
+    ```
+    Score:  0.9238530395691034
+    comments: nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice experience having pay 40 parking night,
+    {'source': 'nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice experience having pay 40 parking night,  ', 'row': 5}
+    
+    Score:  0.975017819981635
+    comments: great location need internally upgrade advantage north end downtown seattle great restaurants nearby good prices, rooms need updated literally thought sleeping 1970 bed old pillows sheets, net result bad nights sleep, stay location, staff friendly,
+    {'source': 'great location need internally upgrade advantage north end downtown seattle great restaurants nearby good prices, rooms need updated literally thought sleeping 1970 bed old pillows sheets, net result bad nights sleep, stay location, staff friendly,  ', 'row': 3}
+    
+    Score:  1.0084132474978011
+    comments: great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library service fabulous,
+    {'source': 'great hotel night quick business trip, loved little touches like goldfish leopard print robe, complaint wifi complimentary not internet access business center, great location library service fabulous,  ', 'row': 0}
+    
+    Score:  1.0180131593936907
+    comments: good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay
+    {'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
+    ```
 
 15. Use the Cosine function to refine the results to the best possible match
 
-```
-    store = PGVector(
-        connection_string=connection_string, 
-        embedding_function=embeddings, 
-        collection_name='fictitious_hotel_reviews',
-        distance_strategy=DistanceStrategy.COSINE
-    )
+    ```
+        store = PGVector(
+            connection_string=connection_string, 
+            embedding_function=embeddings, 
+            collection_name='fictitious_hotel_reviews',
+            distance_strategy=DistanceStrategy.COSINE
+        )
+    
+        retriever = store.as_retriever(search_kwargs={"k": 1})
+    
+        retriever.get_relevant_documents(query='What do some of the positive reviews say?')
+    ```
 
-    retriever = store.as_retriever(search_kwargs={"k": 1})
+    If the run is successful, you should see an output as follows:
 
-    retriever.get_relevant_documents(query='What do some of the positive reviews say?')
-```
-
-If the run is successful, you should see an output as follows:
-
-```
-Document(page_content='comments: nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice experience having pay 40 parking night,', metadata={'source': 'nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice experience having pay 40 parking night,  ', 'row': 5})
-```
+    ```
+    Document(page_content='comments: nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little     
+    disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear 
+    people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice 
+    experience having pay 40 parking night,', metadata={'source': 'nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet 
+    parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud 
+    bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great 
+    walking distance shopping, overall nice experience having pay 40 parking night,  ', 'row': 5})
+    ```
 
 Similarly, you can test results with other distance strategies such as Euclidean or Max Inner Product. Euclidean distance depends on a vector’s magnitude whereas cosine similarity depends on the angle between the vectors. The angle measure is more resilient to variations of occurrence counts between terms that are semantically similar, whereas the magnitude of vectors is influenced by occurrence counts and heterogeneity of word neighborhood. Hence for similarity searches or semantic similarity in text, the cosine distance gives a more accurate measure.
 
@@ -394,9 +373,9 @@ Aurora has a built-in Comprehend function which can call the Comprehend service.
 
 Login in to [AWS Cloud9 IDE](https://console.aws.amazon.com/cloud9/home) and the run the below SQL query using psql.
 
-```
-select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s;
-```
+    ```
+    select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s;
+    ```
 
 You should see results as shown in the screenshot below. Observe the columns sentiment, and confidence. The combination of these two columns provide the inferred sentiment for the text in the document column, and also the confidence score of the inference.
 
