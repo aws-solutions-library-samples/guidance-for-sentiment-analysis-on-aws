@@ -136,20 +136,20 @@ Deploying this stack automatically configures the following environments:
 
 1. Navigate to the SageMaker console and search for [Jupyter notebook instance](https://console.aws.amazon.com/sagemaker/home#notebook-instances)  and select Open Jupyter.
 
-[!Notebook](source/02_SimilaritySearchSentimentAnalysis/static/Launch_Jupyter_Notebook_Semantic.png)
+![](source/02_SimilaritySearchSentimentAnalysis/static/Launch_Jupyter_Notebook_Semantic.png)
 
 2. Click to the `guidance-for-sentiment-analysis-on-aws/source/02_SimilaritySearchSentimentAnalysis` directory.
 
-[!Folder-Structure](source/02_SimilaritySearchSentimentAnalysis/static/Folder-Structure.jpg)
+![](source/02_SimilaritySearchSentimentAnalysis/static/Folder-Structure.jpg)
 
 3. Open a new **Terminal** in Jupyter to set environment variables that you will used for the labs as shown in the screenshot below. Click on **New -> Terminal**.
 
-[!Terminal](source/02_SimilaritySearchSentimentAnalysis/static/Open-terminal.jpg)
+![](source/02_SimilaritySearchSentimentAnalysis/static/Open-terminal.jpg)
 
    
 4. If you don't have one, create a new access token on HuggingFace's website - [HuggingFace] (https://huggingface.co/settings/tokens) . Enter it when prompted by the code block below.
 
-   [!Hugging-Face](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
+   ![](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
 
    ``` 
    read -p "Enter your HuggingFace token: " TOKEN
@@ -210,15 +210,21 @@ Once the environment variables are set , you can exit the terminal
    
 6. Open the notebook `pgvector_with_langchain_auroraml.ipynb.`
 
-[!Hugging-Face](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
+![](source/02_SimilaritySearchSentimentAnalysis/static/Open-notebook.jpg) 
 
 7. In the Menu Bar, select Kernel -> Change kernel and select conda_tensorflow2_p310.
 
-8. Clear the current output in all the cells using the menu and selecting: Cell -> All Output -> Clear.
+![](source/02_SimilaritySearchSentimentAnalysis/static/Clear_Cells.png) 
 
-9. In this lab, we have created a requirements.txt file in the apgpgvector-langchain-auroraml folder that contains all the libraries and packages you will need to complete this lab. Begin by installing the necessary libraries. (~5 mins)
+9. Clear the current output in all the cells using the menu and selecting: Cell -> All Output -> Clear.
 
-10. pgvector integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
+![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.jpg) 
+
+11. In this lab, we have created a requirements.txt file in the apgpgvector-langchain-auroraml folder that contains all the libraries and packages you will need to complete this lab. Begin by installing the necessary libraries. (~5 mins)
+
+![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_Install.png) 
+
+13. pgvector integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
 
     ```
     from dotenv import load_dotenv
@@ -254,14 +260,14 @@ Once the environment variables are set , you can exit the terminal
     max_seq_length  512
     ```
 
-11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
+14. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
     
     ```
     loader = CSVLoader('./data/test.csv', source_column="comments")
     documents = loader.load()
     ```
 
-12. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
+15. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
     
     ```
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
@@ -300,7 +306,7 @@ Once the environment variables are set , you can exit the terminal
     .
     ```
 
-13. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
+16. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
    
     ```
     from typing import List, Tuple
@@ -315,7 +321,7 @@ Once the environment variables are set , you can exit the terminal
     )
     ```
 
-14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
+17. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
 
     ```
     query = "What do some of the positive reviews say?"
@@ -350,7 +356,7 @@ Once the environment variables are set , you can exit the terminal
     {'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
     ```
 
-15. Use the Cosine function to refine the results to the best possible match
+18. Use the Cosine function to refine the results to the best possible match
 
     ```
         store = PGVector(
