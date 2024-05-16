@@ -149,7 +149,7 @@ Deploying this stack automatically creates the following resources:
 
    ![](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
 
-   Copy & paste the below code on Jypyter Terminal, enter HuggingFace Token when prompted
+   Copy & paste the below code on Jupyter Terminal, enter HuggingFace Token when prompted
    
    ```
    read -p "Enter your HuggingFace token: " TOKEN
