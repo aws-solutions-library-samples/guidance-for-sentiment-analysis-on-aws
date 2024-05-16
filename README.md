@@ -56,7 +56,7 @@ In this sample code deployment we are using Linux operating system for Cloud9 EC
 
 ## Deployment Steps
 
-#### 1. Clone the GitHub repository
+#### 1. Clone the GitHub repository to access the AWS CFN deployment template.
 
     ```
     git clone https://github.com/aws-solutions-library-samples/guidance-for-sentiment-analysis-on-aws.git
@@ -68,15 +68,15 @@ This guidance utilizes the `AdministratorAccess` role for deployment. For use in
 * Using the AWS Management Console
 
     * Sign in to the [AWS CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
-    * Create Stack > Upload the `./source/templates/prereq-sentiment-analysis.yaml` file
+    * Create Stack > Upload the `guidance-for-sentiment-analysis-on-aws/source/templates/prereq-sentiment-analysis.yaml` file
     * Deploy the stack after entering `Sentiment-Analysis` in the stack name
         * The parameters can be changed, but we recommend the default values for a smooth deployment.
      
 #### 3. Deployment Validation
 
-Open the AWS CloudFormation console and verify the status of the template with the name starting with `Sentiment-Analysis`.
+Open the AWS CloudFormation console and verify the status of the stack deployment with the name starting with `Sentiment-Analysis`.
 
-Deploying this stack automatically configures the following environments:
+Deploying this stack automatically creates the following resources:
 
 - **VPC, Subnet, Internet Gateway, Security Groups, Route Table:** A VPC with public and private subnets, an internet gateway for public access, and Secrutiy Groups & Route Table for access control.
 - **Amazon Aurora PostgreSQL cluster:** An Amazon Aurora PostgreSQL cluster consisting of a provisioned writer instance, a provisioned reader instance
@@ -84,7 +84,7 @@ Deploying this stack automatically configures the following environments:
 - **AWS Cloud9 IDE** AWS Cloud9 is a cloud-based integrated development environment (IDE) that lets you write, run, and debug your code with just a browser.
 - **AWS Secrets Manager , AWS Key Management Service:** AWS Secrets Manager helps you manage, retrieve database credentials and AWS Key Management Service to encrypt the database cluster.
 - **AWS Identity and Access Management - IAM Roles** IAM Roles defined with a set of permissions, allowing them to perform actions on AWS resources deployed in this guidance.
-- **You can see the detailed output in the AWS CloudFormation `Sentiment-Analysis` stack Resources.**
+- **[Optional] - You can see the detailed output in the AWS CloudFormation Stack `Sentiment-Analysis` using below AWS CLI command.**
 
     ```
     aws cloudformation describe-stacks --stack-name Sentiment-Analysis --query 'Stacks[0].Outputs' --output table --no-cli-pager
@@ -94,7 +94,7 @@ Deploying this stack automatically configures the following environments:
 #### 1. Setup the environment in AWS Cloud9 to connect to Aurora PostgreSQL DB Cluster
 
 - Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). Click on **New Terminal**
-- Use the code block below to setup the environment (use the Copy button on the right to copy code)
+- Use the code block below to setup the environment (use the Copy button on the right to copy code and paste it on the AWS Cloud9 Terminal)
 
     ```bash
     # Install JQuery for parsing output
@@ -132,7 +132,7 @@ Deploying this stack automatically configures the following environments:
 > [!Note]
 > In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents      that contain live code, equations, visualizations, and narrative text.
 
-1. Navigate to the SageMaker console and search for [Jupyter notebook instance](https://console.aws.amazon.com/sagemaker/home#notebook-instances)  and select Open Jupyter.
+1. Navigate to [Jupyter notebook instance](https://console.aws.amazon.com/sagemaker/home#notebook-instances) in SageMaker console and select Open Jupyter.
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Launch_Jupyter_Notebook_Semantic.png)
 
@@ -145,15 +145,17 @@ Deploying this stack automatically configures the following environments:
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Open-terminal.jpg)
 
    
-4. If you don't have one, create a new access token on HuggingFace's website - [HuggingFace] (https://huggingface.co/settings/tokens) . Enter it when prompted by the code block below.
+4. If you don't have one, create a new access token on HuggingFace's website - [HuggingFace] (https://huggingface.co/settings/tokens) and make note of it. 
 
    ![](source/02_SimilaritySearchSentimentAnalysis/static/Hugging_face_token.jpg) 
 
+   Copy & paste the below code on Jypyter Terminal, enter HuggingFace Token when prompted
+   
    ``` 
    read -p "Enter your HuggingFace token: " TOKEN
    ```
 
-5. Use the code block below to create an .env file for your project in the same terminal.(use the Copy button on the right to copy code)
+6. Use the code block below to create an .env file for your project in the same terminal.(use the Copy button on the right to copy code)
 
     ```
     # Install JQuery for parsing output
@@ -219,11 +221,12 @@ Once the environment variables are set , you can exit the terminal
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Clear_Cells.png) 
 
 
-9. In this lab, we have created a `requirements.txt` file in the apgpgvector-langchain-auroraml folder that contains all the libraries and packages you will need to complete this lab. Begin by installing the necessary libraries. (~5 mins)
+9. In this lab, we have created a `requirements.txt` file in the `guidance-for-sentiment-analysis-on-aws/source
+/02_SimilaritySearchSentimentAnalysis` folder that contains all the libraries and packages you will need to complete this lab. Select the text as shown in the screenshot below and then click on `Run` button.
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_Install.png) 
 
-10. `pgvector` integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below:     
+10. `pgvector` integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below and then click on `Run` button.    
 
     ```
     from dotenv import load_dotenv
@@ -259,14 +262,14 @@ Once the environment variables are set , you can exit the terminal
     max_seq_length  512
     ```
 
-11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader .
+11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader, click on `Run` button.
     
     ```
     loader = CSVLoader('./data/fictitious_hotel_reviews_trimmed_500.csv')
     documents = loader.load()
     ```
 
-12. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks:
+12. Split the text using LangChain’s [CharacterTextSplitter](https://js.langchain.com/docs/modules/indexes/text_splitters/examples/character) function and generate chunks, click on `Run` button.
     
     ```
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
@@ -305,7 +308,7 @@ Once the environment variables are set , you can exit the terminal
     .
     ```
 
-13. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset.
+13. The PGVector module will try to create a table with the name of the collection. So, make sure that the collection name is unique and the user has the [permissions](https://www.postgresql.org/docs/current/ddl-priv.html) to create a table. This takes a few minutes to complete depending on the size of the dataset, click on `Run` button.
    
     ```
     from typing import List, Tuple
@@ -320,7 +323,7 @@ Once the environment variables are set , you can exit the terminal
     )
     ```
 
-14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector.
+14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector , click on `Run` button.
 
     ```
     query = "What do some of the positive reviews say?"
@@ -355,7 +358,7 @@ Once the environment variables are set , you can exit the terminal
     {'source': 'good choice hotel recommended sister, great location room nice, comfortable bed- quiet- staff helpful recommendations restaurants, pike market 4 block walk stay', 'row': 2}
     ```
 
-15. Use the Cosine function to refine the results to the best possible match
+15. Use the Cosine function to refine the results to the best possible match, click on `Run` button.
 
     ```
         store = PGVector(
@@ -392,7 +395,7 @@ Aurora has a built-in Comprehend function which can call the Comprehend service.
 Login in to [AWS Cloud9 IDE](https://console.aws.amazon.com/cloud9/home) and the run the below SQL query using psql.
 
     ```
-    select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s;
+    psql - c "select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s";
     ```
 
 You should see results as shown in the screenshot below. Observe the columns sentiment, and confidence. The combination of these two columns provide the inferred sentiment for the text in the document column, and also the confidence score of the inference.
