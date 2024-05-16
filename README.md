@@ -109,7 +109,7 @@ Deploying this stack automatically creates the following resources:
         --query 'DBClusterEndpoints[0].Endpoint' \
         --output text`
     
-    # Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret
+    # Retrieve credentials from Secrets Manager - Secret: apgpg-pgvector-secret-$AWSREGION
     CREDS=`aws secretsmanager get-secret-value \
         --secret-id apgpg-pgvector-secret-$AWSREGION \
         --region $AWSREGION | jq -r '.SecretString'`
