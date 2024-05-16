@@ -151,7 +151,7 @@ Deploying this stack automatically creates the following resources:
 
    Copy & paste the below code on Jypyter Terminal, enter HuggingFace Token when prompted
    
-   ``` 
+   ```
    read -p "Enter your HuggingFace token: " TOKEN
    ```
 
@@ -255,17 +255,17 @@ Once the environment variables are set , you can exit the terminal
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Warning-message-libraries.png) 
 
-    
+   
     If the run is successful, you should see an output as follows:
     
-    ```
+   
     /../pgvector-with-langchain-auroraml/venv/lib/python3.9/site-packages/InstructorEmbedding/instructor.py:7: TqdmExperimentalWarning: Using `tqdm.autonotebook.tqdm` in notebook mode. Use `tqdm.tqdm` 
     instead to force console mode (e.g. in jupyter console)
       from tqdm.autonotebook import trange
     load INSTRUCTOR_Transformer
     load INSTRUCTOR_Transformer
     max_seq_length  512
-    ```
+    
 
 11. Load a sample fictitious hotel dataset (CSV) with LangChain's CSVLoader, click on `Run` button.
     
@@ -370,23 +370,22 @@ Once the environment variables are set , you can exit the terminal
 15. Use the Cosine function to refine the results to the best possible match, click on `Run` button.
 
     ```
-        store = PGVector(
-            connection_string=connection_string, 
-            embedding_function=embeddings, 
-            collection_name='fictitious_hotel_reviews',
-            distance_strategy=DistanceStrategy.COSINE
-        )
-    
-        retriever = store.as_retriever(search_kwargs={"k": 1})
+    store = PGVector(
+        connection_string=connection_string, 
+        embedding_function=embeddings, 
+        collection_name='fictitious_hotel_reviews',
+        distance_strategy=DistanceStrategy.COSINE
+    )
+
+    retriever = store.as_retriever(search_kwargs={"k": 1})
     ```
 > [!Important]
 > Please note that you may encounter a warning message shown in the screenshot below during your run. If this occurs , please ignore the same.
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Warning_Message_Cosine.png) 
     
-    ```
-        retriever.get_relevant_documents(query='What do some of the positive reviews say?')
-    ```
+    retriever.get_relevant_documents(query='What do some of the positive reviews say?')
+   
 > [!Important]
 > Please note that you may encounter a warning message shown in the screenshot below during your run. If this occurs , please ignore the same.
 
@@ -394,7 +393,7 @@ Once the environment variables are set , you can exit the terminal
     
     If the run is successful, you should see an output as follows:
 
-    ```
+  
     Document(page_content='comments: nice hotel expensive parking got good deal stay hotel anniversary, arrived late evening took advice previous reviews did valet parking, check quick easy, little     
     disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud bangs doors opening closing hear 
     people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great walking distance shopping, overall nice 
@@ -402,7 +401,7 @@ Once the environment variables are set , you can exit the terminal
     parking, check quick easy, little disappointed non-existent view room room clean nice size, bed comfortable woke stiff neck high pillows, not soundproof like heard music room night morning loud 
     bangs doors opening closing hear people talking hallway, maybe just noisy neighbors, aveda bath products nice, did not goldfish stay nice touch taken advantage staying longer, location great 
     walking distance shopping, overall nice experience having pay 40 parking night,  ', 'row': 5})
-    ```
+    
 
 Similarly, you can test results with other distance strategies such as Euclidean or Max Inner Product. Euclidean distance depends on a vector’s magnitude whereas cosine similarity depends on the angle between the vectors. The angle measure is more resilient to variations of occurrence counts between terms that are semantically similar, whereas the magnitude of vectors is influenced by occurrence counts and heterogeneity of word neighborhood. Hence for similarity searches or semantic similarity in text, the cosine distance gives a more accurate measure.
 
@@ -412,9 +411,9 @@ Aurora has a built-in Comprehend function which can call the Comprehend service.
 
 Login in to [AWS Cloud9 IDE](https://console.aws.amazon.com/cloud9/home) and the run the below SQL query using psql.
 
-    ```
+
     psql - c "select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s";
-    ```
+
 
 You should see results as shown in the screenshot below. Observe the columns sentiment, and confidence. The combination of these two columns provide the inferred sentiment for the text in the document column, and also the confidence score of the inference.
 
