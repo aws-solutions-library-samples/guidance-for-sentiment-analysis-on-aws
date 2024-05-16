@@ -250,6 +250,11 @@ Once the environment variables are set , you can exit the terminal
         database = os.environ.get("PGVECTOR_DATABASE")                                       
     )
     ```
+> [!Important]
+> Please note that you may encounter a warning message shown in the screenshot below during your run. If this occurs , please ignore the same.
+
+![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.png) 
+
     
     If the run is successful, you should see an output as follows:
     
@@ -322,6 +327,10 @@ Once the environment variables are set , you can exit the terminal
          connection_string=connection_string
     )
     ```
+> [!Important]
+> Please note that you may encounter a warning message shown in the screenshot below during your run. If this occurs , please ignore the same.
+
+![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.png) 
 
 14. Run a similarity search using the [similarity_search_with_score](https://python.langchain.com/docs/modules/data_connection/vectorstores/integrations/pgvector) function from pgvector , click on `Run` button.
 
@@ -370,10 +379,19 @@ Once the environment variables are set , you can exit the terminal
     
         retriever = store.as_retriever(search_kwargs={"k": 1})
     ```
+> [!Important]
+> Please note that you may encounter a warning message shown in the screenshot below during your run. If this occurs , please ignore the same.
+
+![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.png) 
+    
     ```
         retriever.get_relevant_documents(query='What do some of the positive reviews say?')
     ```
+> [!Important]
+> Please note that you may encounter a warning message shown in the screenshot below during your run. If this occurs , please ignore the same.
 
+![](source/02_SimilaritySearchSentimentAnalysis/static/Kernel.png) 
+    
     If the run is successful, you should see an output as follows:
 
     ```
