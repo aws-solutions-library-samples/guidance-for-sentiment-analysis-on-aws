@@ -48,9 +48,8 @@ The following table provides a sample cost breakdown for deploying this Guidance
 | Amazon Aurora | db.r6g.2xlarge  | $1.038 |
 
 ## Prerequisites
-- The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed.
-- The visual editor of your choice, for example [Visual Studio Code](https://code.visualstudio.com/).
-- Download CloudFormation template to quickly deploy and test the solution. Follow the steps that are mentioned in this [link](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-stack.html) to deploy the stack.
+- **[Optional]** The visual editor of your choice to read the code, for example [Visual Studio Code](https://code.visualstudio.com/).
+- **[Optional]** The deployment steps shown below is through AWS Console, if the user prefers to use AWS CLI for CFN deployment install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 
 ### Operating System
 In this sample code deployment we are using Linux operating system for Cloud9 EC2 instance and Amazon Aurora Postgresql instance.
