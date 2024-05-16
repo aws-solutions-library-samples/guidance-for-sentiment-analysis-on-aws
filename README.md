@@ -155,7 +155,7 @@ Deploying this stack automatically creates the following resources:
    read -p "Enter your HuggingFace token: " TOKEN
    ```
 
-6. Use the code block below to create an .env file for your project in the same terminal.(use the Copy button on the right to copy code)
+6. Use the code block below to create an .env file for your project in the same terminal.(use the Copy button on the right to copy code and paste it on the AWS Cloud9 Terminal)
 
     ```
     # Install JQuery for parsing output
