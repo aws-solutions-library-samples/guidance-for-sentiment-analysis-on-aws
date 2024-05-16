@@ -127,7 +127,7 @@ Deploying this stack automatically creates the following resources:
     ```
 #### 2. Semantic Search using Hugging Face
 
-- This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instrcutions you should be able execute the code and observe the output.
+- This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instructions you should be able execute the code and observe the output.
 
 > [!Note]
 > In this lab, you will use a [Jupyter notebook](https://docs.aws.amazon.com/dlami/latest/devguide/setup-jupyter.html) , an open-source web application that you can use to create and share documents      that contain live code, equations, visualizations, and narrative text.
