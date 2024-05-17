@@ -117,6 +117,11 @@ Deploying this stack automatically creates the following resources:
     export PGUSER="`echo $CREDS | jq -r '.username'`"
     export PGPASSWORD="`echo $CREDS | jq -r '.password'`"    
     export PGHOST
+
+    # Persist values in future terminals
+    echo "export PGUSER=$PGUSER" >> /home/ec2-user/.bashrc
+    echo "export PGPASSWORD='$PGPASSWORD'" >> /home/ec2-user/.bashrc
+    echo "export PGHOST=$PGHOST" >> /home/ec2-user/.bashrc
     
     # Install PostgreSQL 14 client and related utilities
     sudo amazon-linux-extras install -y postgresql14
