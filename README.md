@@ -232,7 +232,7 @@ Once the environment variables are set , you can exit the terminal
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_Install.png)
 
 > [!Important]
-> Please note that you may encounter a error message shown in the screenshot below during your run. If this occurs , please ignore the same.
+> Please note that you may encounter an error message shown in the screenshot below during your run. If this occurs , please ignore the same.
 
 ![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_error.png) 
 
