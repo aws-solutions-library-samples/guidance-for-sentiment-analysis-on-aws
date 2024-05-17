@@ -25,7 +25,7 @@ In this Guidance, we will show how to generate Sentiment Analysis using Amazon A
 
 ### Architecture
 
-![Architecture](source/02_SimilaritySearchSentimentAnalysis/static/usecase2_sentiment_analysis.png)
+![Architecture](source/02_SimilaritySearchSentimentAnalysis/static/Architecture.png)
 
 ### Cost
 
@@ -125,7 +125,7 @@ Deploying this stack automatically creates the following resources:
     psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
     psql -c "CREATE EXTENSION IF NOT EXISTS aws_ml CASCADE;"
     ```
-#### 2. Semantic Search using Hugging Face
+#### 2. Semantic Search using Hugging Face & Sentiment Analysis using Amazon Comprehend API
 
 - This guide will walk through each step to understand and run the code in the Jupter Notebook. By following these instructions you should be able execute the code and observe the output.
 
@@ -409,7 +409,7 @@ Similarly, you can test results with other distance strategies such as Euclidean
 
 Aurora has a built-in Comprehend function which can call the Comprehend service. It passes the inputs of the aws_comprehend.detect_sentiment function, in this case the values of the document column in the langchain_pg_embedding table, to the Comprehend service and retrieves sentiment analysis results (note that the document column is trimmed due to the long free form nature of reviews):
 
-Login in to [AWS Cloud9 IDE](https://console.aws.amazon.com/cloud9/home) and the run the below SQL query using psql.
+Login in to [AWS Cloud9 IDE](https://console.aws.amazon.com/cloud9/home) and the run the below SQL query in the same terminal where your environment is set.
 
 
     psql -c "select LEFT(document, 100) as document, s.sentiment, s.confidence from langchain_pg_embedding, aws_comprehend.detect_sentiment(document, 'en') s";
