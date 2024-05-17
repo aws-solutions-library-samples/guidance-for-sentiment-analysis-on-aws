@@ -427,7 +427,11 @@ In this Guidance ,we have used a sample dataset for fictitious hotel reviews. We
 
 ## Cleanup
 
-This Guidance requires manual deletion of resources created as part of this guidance. If AWS Cloud9 instance and Amazon Aurora DB Cluster were newly created following the steps per this guidance, then those have to be manually deleted when no longer required. 
+If you no longer need it, you can delete the AWS CloudFormation stack to clean up resources.
+
+- If you deployed using the CloudFormation console:
+    * Sign in to the [AWS CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
+    * Select the Stack `Sentiment-Analysis` and click on delete it.
 
 ## Notices
 
