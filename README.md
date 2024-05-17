@@ -427,11 +427,11 @@ In this Guidance ,we have used a sample dataset for fictitious hotel reviews. We
 
 ## Cleanup
 
-If you no longer need it, you can delete the AWS CloudFormation stack to clean up resources.
+When no longer needed, you can delete the resources manually or by deleting the entire AWS CloudFormation stack.
 
-- If you deployed using the CloudFormation console:
+- If you want to delete the entire stack using the CloudFormation console:
     * Sign in to the [AWS CloudFormation console](https://console.aws.amazon.com/cloudformation/home)
-    * Select the Stack `Sentiment-Analysis` and click on delete it.
+    * Select the Stack `Sentiment-Analysis` and click on delete.
 
 ## Notices
 
