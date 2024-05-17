@@ -229,7 +229,12 @@ Once the environment variables are set , you can exit the terminal
 9. In this lab, we have created a `requirements.txt` file in the `guidance-for-sentiment-analysis-on-aws/source
 /02_SimilaritySearchSentimentAnalysis` folder that contains all the libraries and packages you will need to complete this lab. Select the text as shown in the screenshot below and then click on `Run` button.
 
-![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_Install.png) 
+![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_Install.png)
+
+> [!Important]
+> Please note that you may encounter a error message shown in the screenshot below during your run. If this occurs , please ignore the same.
+
+![](source/02_SimilaritySearchSentimentAnalysis/static/Pip_error.png) 
 
 10. `pgvector` integration with LangChain needs the connection string to the database. In this step, you will connect to the database and generate the embeddings. Note that you will pass in the connection details as well as the HuggingFace API Token from your .env file. Your code block should look like the below and then click on `Run` button.    
 
