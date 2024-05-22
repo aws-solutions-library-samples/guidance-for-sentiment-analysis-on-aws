@@ -93,7 +93,7 @@ Deploying this stack automatically creates the following resources:
 ## Running the Guidance
 #### 1. Setup the environment in AWS Cloud9 to connect to Aurora PostgreSQL DB Cluster
 
-- Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). You will see a Cloud9 Environment created by CloudFormation Stack with name **`genai-pgvector-labs-Cloud9-IDE`**. Click on `Open`, a Cloud9 Environment will load and you will see Welcome page. Within the Cloud9 IDE, click on Window in the Top Menu and then Click on **New Terminal**
+- Navigate to the [AWS Cloud9 Console](https://console.aws.amazon.com/cloud9/home). You will see a Cloud9 Environment created by CloudFormation Stack with name **`genai-pgvector-sentiment-analysis-Cloud9-IDE`**. Click on `Open`, a Cloud9 Environment will load and you will see Welcome page. Within the Cloud9 IDE, click on Window in the Top Menu and then Click on **New Terminal**
 - Use the code block below to setup the environment (use the Copy button on the right to copy code and paste it on the AWS Cloud9 Terminal)
 
     ```bash
