@@ -1,8 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-
-Description: >
-    This template deploys a VPC, Aurora DB Cluster, and a Amazon SageMaker Notebook Instance
+Description: Guidance for Sentiment Analysis on AWS (SO9449). This template deploys a VPC, Aurora DB Cluster, and a Amazon SageMaker Notebook Instance
 
 Parameters:
   TemplateName:
