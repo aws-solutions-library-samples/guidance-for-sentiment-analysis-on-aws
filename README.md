@@ -47,6 +47,10 @@ The following table provides a sample cost breakdown for deploying this Guidance
 | ----------- | ------------ | ------------ |
 | Amazon Aurora | db.r6g.2xlarge  | $1.038 |
 
+| AWS service  | Compute Fees | Storage fees | Total Monthly Fees |
+| ------------ | ------------ | ------------ | -------------------|
+| AWS Cloud9   | $1.05        | $1.00        | $2.05              |
+
 ## Prerequisites
 - **[Optional]** The visual editor of your choice to read the code, for example [Visual Studio Code](https://code.visualstudio.com/).
 - **[Optional]** The deployment steps shown below is through AWS Console, if the user prefers to use AWS CLI for CFN deployment install [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
